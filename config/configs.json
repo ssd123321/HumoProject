@@ -1,0 +1,10 @@
+{
+  "host": "localhost",
+  "password": "humo",
+  "dbname": "postgres",
+  "port": "5432",
+  "sslmode": "disable",
+  "http_port": 8080,
+  "user": "humo",
+  "redis_port": 6379
+}
