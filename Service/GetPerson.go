@@ -22,19 +22,4 @@ func (s *Service) GetPersonByID(ctx context.Context) (*model.Person, error) {
 		return person, err
 	}
 	return person, err
-	/*
-		if errors.As(err, &ErrNotFoundInCache) {
-			person, err := s.repository.GetPersonByID(ctx)
-			if err != nil {
-				return nil, err
-			}
-			err = s.cache.SetPerson(ctx, person)
-			if err != nil {
-				return nil, err
-			}
-		} else if err != nil {
-			return nil, err
-		}
-	*/
-
 }

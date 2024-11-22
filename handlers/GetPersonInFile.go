@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-func (p *Handler) GetPersonInFile(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetPersonInFile(w http.ResponseWriter, r *http.Request) {
 	values := mux.Vars(r)
 	value := values["id"]
 	id, err := strconv.Atoi(value)
@@ -21,7 +21,7 @@ func (p *Handler) GetPersonInFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r = r.WithContext(context.WithValue(r.Context(), "id", id))
-	person, err := p.Service.GetPersonByID(r.Context())
+	person, err := h.Service.GetPersonByID(r.Context())
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))

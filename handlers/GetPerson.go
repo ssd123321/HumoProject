@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 	"regexp"
 	"strconv"
 )
 
-func (p *Handler) GetPatientByID(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetPatientByID(w http.ResponseWriter, r *http.Request) {
 	values := mux.Vars(r)
 	value := values["id"]
 	id, err := strconv.Atoi(value)
@@ -20,7 +21,7 @@ func (p *Handler) GetPatientByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r = r.WithContext(context.WithValue(r.Context(), "id", id))
-	person, err := p.Service.GetPersonByID(r.Context())
+	person, err := h.Service.GetPersonByID(r.Context())
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -50,6 +51,7 @@ func (p *Handler) GetPatientByID(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	log.Printf("sent data:%s", data)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(data)

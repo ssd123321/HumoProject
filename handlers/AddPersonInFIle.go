@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (p *Handler) AddPeopleFromFile(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) AddPeopleFromFile(w http.ResponseWriter, r *http.Request) {
 	file, parameters, err := r.FormFile("file")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -34,7 +34,7 @@ func (p *Handler) AddPeopleFromFile(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	_, err = p.Service.AddPeople(persons, r.Context())
+	_, err = h.Service.AddPeople(persons, r.Context())
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))

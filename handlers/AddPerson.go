@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func (p *Handler) AddPerson(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) AddPerson(w http.ResponseWriter, r *http.Request) {
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -21,7 +21,7 @@ func (p *Handler) AddPerson(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	Person, err = p.Service.AddPerson(Person, r.Context())
+	Person, err = h.Service.AddPerson(Person, r.Context())
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Server crush..."))

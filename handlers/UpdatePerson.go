@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func (p *Handler) UpdatePerson(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdatePerson(w http.ResponseWriter, r *http.Request) {
 	var person model.Person
 	defer r.Body.Close()
 	data, err := io.ReadAll(r.Body)
@@ -24,7 +24,7 @@ func (p *Handler) UpdatePerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r = r.WithContext(context.WithValue(r.Context(), "id", person.ID))
-	UpdatedPerson, err := p.Service.UpdatePerson(&person, r.Context())
+	UpdatedPerson, err := h.Service.UpdatePerson(&person, r.Context())
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))

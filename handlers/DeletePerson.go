@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func (p *Handler) DeletePerson(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeletePerson(w http.ResponseWriter, r *http.Request) {
 	values := mux.Vars(r)
 	value := values["id"]
 	id, err := strconv.Atoi(value)
@@ -18,7 +18,7 @@ func (p *Handler) DeletePerson(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r = r.WithContext(context.WithValue(r.Context(), "id", id))
-	id, err = p.Service.DeletePerson(r.Context())
+	id, err = h.Service.DeletePerson(r.Context())
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))

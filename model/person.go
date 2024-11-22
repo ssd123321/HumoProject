@@ -32,7 +32,7 @@ type Person struct {
 	CreatedAt *time.Time `json:"created_at,omitempty" gorm:"column:created_at"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty" gorm:"column:deleted_at"`
-	Cache     bool       `json:"cache,omitempty" gorm:"column:cache"`
+	Cache     bool       `json:"cache" gorm:"column:cache"`
 }
 type DBPerson struct {
 	ID        int        `gorm:"primaryKey:id"`
@@ -40,7 +40,7 @@ type DBPerson struct {
 	CreatedAt *time.Time `json:"created_at,omitempty" gorm:"column:created_at"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty" gorm:"column:deleted_at"`
-	Cache     bool       `json:"cache,omitempty" gorm:"column:cache"`
+	Cache     bool       `json:"cache" gorm:"column:cache"`
 }
 type PeopleNoContent struct {
 	ID        int        `gorm:"primaryKey:id"`
@@ -48,5 +48,5 @@ type PeopleNoContent struct {
 	CreatedAt *time.Time `json:"created_at,omitempty" gorm:"column:created_at"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty" gorm:"column:deleted_at"`
-	Cache     bool       `json:"cache,omitempty" gorm:"column:cache"`
+	Cache     bool       `json:"cache" gorm:"column:cache"`
 }
