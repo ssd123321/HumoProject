@@ -42,7 +42,7 @@ func NewCache(addr string, password string, db int) Cache {
 func (c *Cache) GetPerson(ctx context.Context) (*model.Person, error) {
 	var personJSON string
 	var person model.Person
-	err := c.client.Get(ctx, fmt.Sprint(ctx.Value("id"))).Scan(&personJSON)
+	err := c.client.Get(ctx, fmt.Sprint(ctx.Value("person_id"))).Scan(&personJSON)
 	if err != nil {
 		log.Printf("GetPersonError - %v", err.Error())
 		return nil, err
@@ -59,7 +59,7 @@ func (c *Cache) SetPerson(ctx context.Context, person *model.Person) error {
 	if err != nil {
 		return err
 	}
-	err = c.client.Set(ctx, fmt.Sprint(ctx.Value("id")), string(payload), time.Second*20).Err()
+	err = c.client.Set(ctx, fmt.Sprint(ctx.Value("person_id")), string(payload), time.Second*20).Err()
 	if err != nil {
 		log.Printf("SetPersonError - %v", err.Error())
 		return err
@@ -67,7 +67,7 @@ func (c *Cache) SetPerson(ctx context.Context, person *model.Person) error {
 	return nil
 }
 func (c *Cache) DeletePerson(ctx context.Context) error {
-	err := c.client.Del(ctx, fmt.Sprint(ctx.Value("id"))).Err()
+	err := c.client.Del(ctx, fmt.Sprint(ctx.Value("person_id"))).Err()
 	if err != nil {
 		log.Printf("DeletePersonError - %v", err)
 		return err

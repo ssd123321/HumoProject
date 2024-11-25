@@ -4,16 +4,12 @@ import (
 	"Tasks/model"
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 )
 
 func (r *Repository) GetPersonByID(ctx context.Context) (*model.Person, error) {
-	var x int
-	r.DB.Raw("Select simple(?, ?)", 4, 3).Scan(&x)
-	fmt.Println(x)
 	var person model.DBPerson
-	err := r.DB.WithContext(ctx).Raw("Select id, content::text, deleted_at, created_at, updated_at, cache From person where id = ? and deleted_at is null", ctx.Value("id")).First(&person).Error
+	err := r.DB.WithContext(ctx).Raw("Select id, content::text, deleted_at, created_at, updated_at, cache From person where id = ? and deleted_at is null", ctx.Value("person_id").(int)).First(&person).Error
 	if err != nil {
 		log.Printf("Failed to GetPerson - r.DB.Raw(1): %v", err)
 		return nil, err

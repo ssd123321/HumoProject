@@ -20,12 +20,18 @@ Create Table Card
 (
     id serial primary key,
     person_id int not null,
-    card_content jsonb,
+    card_number int8,
+    date_of_expire varchar(5),
+    logotype varchar(200),
+    money numeric,
+    bank_name varchar(100),
     updated_at timestamp default now(),
     deleted_at timestamp default now(),
     created_at timestamp default now(),
     FOREIGN KEY (person_id) references person(id)
 );
+ALter table Card Add CONSTRAINT
+drop table card;
 CREATE OR REPLACE FUNCTION log_person_update()
     RETURNS TRIGGER AS $$
 BEGIN
@@ -85,5 +91,7 @@ Select simple(2, 3);
 Create function GetValues(inout a int, inout b int) AS 'Select a + b, a * b' language sql;
 SELECT GetValues(5, 5);
 
+
+Ins
 
 

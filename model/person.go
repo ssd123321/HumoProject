@@ -60,13 +60,19 @@ type CardContent struct {
 	DateOfExpire string `json:"date_of_expire"`
 }
 type Card struct {
-	ID        int         `json:"id,omitempty" gorm:"primaryKey:id"`
-	PersonID  int         `json:"person_id,omitempty" gorm:"column:person_id"`
-	Content   CardContent `json:"content,omitempty" gorm:"type:jsonb"`
-	CreatedAt *time.Time  `json:"created_at,omitempty" gorm:"column:created_at"`
-	UpdatedAt *time.Time  `json:"updated_at,omitempty" gorm:"column:updated_at"`
-	DeletedAt *time.Time  `json:"deleted_at,omitempty" gorm:"column:deleted_at"`
+	ID           int        `json:"id,omitempty" gorm:"primaryKey:id"`
+	PersonID     int        `json:"person_id,omitempty" gorm:"column:person_id"`
+	DateOfExpire string     `json:"date_of_expire,omitempty" gorm:"column:date_of_expire"`
+	CardNumber   int        `json:"card_number,omitempty" gorm:"column:card_number"`
+	Logotype     string     `json:"logotype,omitempty" gorm:"column:logotype"`
+	Money        float64    `json:"money,omitempty" gorm:"column:money"`
+	BankName     string     `json:"bank_name,omitempty" gorm:"column:bank_name"`
+	CreatedAt    *time.Time `json:"created_at,omitempty" gorm:"column:created_at"`
+	UpdatedAt    *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at"`
+	DeletedAt    *time.Time `json:"deleted_at,omitempty" gorm:"column:deleted_at"`
 }
+
+var Sender Card = Card{}
 
 func (c *CardContent) Scan(src interface{}) error {
 	log.Println(1)
