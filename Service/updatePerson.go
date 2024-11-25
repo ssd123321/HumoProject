@@ -11,10 +11,10 @@ func (s *Service) UpdatePerson(person *model.Person, ctx context.Context) (*mode
 		return nil, err
 	}
 	person, err = s.repository.GetPersonByID(ctx)
-	err = s.cache.SetPerson(ctx, person)
 	if err != nil {
 		return nil, err
 	}
+	err = s.cache.SetPerson(ctx, person)
 	if err != nil {
 		return nil, err
 	}

@@ -16,6 +16,16 @@ Create Table people_tracing
     created_at timestamp default now(),
     FOREIGN KEY (id) REFERENCES person(id)
 );
+Create Table Card
+(
+    id serial primary key,
+    person_id int not null,
+    card_content jsonb,
+    updated_at timestamp default now(),
+    deleted_at timestamp default now(),
+    created_at timestamp default now(),
+    FOREIGN KEY (person_id) references person(id)
+);
 CREATE OR REPLACE FUNCTION log_person_update()
     RETURNS TRIGGER AS $$
 BEGIN
@@ -65,5 +75,15 @@ Create trigger person_updated_at_trigger
     before update ON person
     for each row
     Execute function update_person_updated_at();
+
+Create FUNCTION simple(x integer, y integer) RETURNS integer AS $$;
+    Select x * y;
+$$ language SQL;
+
+Select simple(2, 3);
+
+Create function GetValues(inout a int, inout b int) AS 'Select a + b, a * b' language sql;
+SELECT GetValues(5, 5);
+
 
 

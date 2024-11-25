@@ -58,6 +58,7 @@ func main() {
 	handler.Router.Use(middleware.Recovery)
 	handler.Router.Use(middleware.SetLimit)
 	handler.Router.HandleFunc("/AddPerson", handler.AddPerson).Methods("POST")
+	handler.Router.HandleFunc("/GetPeople", handler.GetPeople).Methods("GET")
 	handler.Router.HandleFunc("/DeletePerson/{id}", handler.DeletePerson).Methods("DELETE")
 	handler.Router.HandleFunc("/GetPerson/{id}", handler.GetPatientByID).Methods("GET")
 	handler.Router.HandleFunc("/UpdatePerson", handler.UpdatePerson).Methods("PUT")

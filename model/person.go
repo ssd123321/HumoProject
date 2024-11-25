@@ -1,6 +1,9 @@
 package model
 
 import (
+	"database/sql/driver"
+	"encoding/json"
+	"log"
 	"time"
 )
 
@@ -49,4 +52,50 @@ type PeopleNoContent struct {
 	UpdatedAt *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty" gorm:"column:deleted_at"`
 	Cache     bool       `json:"cache" gorm:"column:cache"`
+}
+type CardContent struct {
+	CardNumber   int    `json:"card_number"`
+	Logotype     string `json:"logotype"`
+	BankName     string `json:"bankname"`
+	DateOfExpire string `json:"date_of_expire"`
+}
+type Card struct {
+	ID        int         `json:"id,omitempty" gorm:"primaryKey:id"`
+	PersonID  int         `json:"person_id,omitempty" gorm:"column:person_id"`
+	Content   CardContent `json:"content,omitempty" gorm:"type:jsonb"`
+	CreatedAt *time.Time  `json:"created_at,omitempty" gorm:"column:created_at"`
+	UpdatedAt *time.Time  `json:"updated_at,omitempty" gorm:"column:updated_at"`
+	DeletedAt *time.Time  `json:"deleted_at,omitempty" gorm:"column:deleted_at"`
+}
+
+func (c *CardContent) Scan(src interface{}) error {
+	log.Println(1)
+	var data []byte
+	switch v := src.(type) {
+	case []uint8:
+		data = v
+	case string:
+		data = []byte(v)
+	}
+	return json.Unmarshal(data, c)
+}
+
+func (c *CardContent) Value() (driver.Value, error) {
+	return json.Marshal(c)
+}
+
+func (c *Content) Scan(src interface{}) error {
+	log.Println(1)
+	var data []byte
+	switch v := src.(type) {
+	case []uint8:
+		data = v
+	case string:
+		data = []byte(v)
+	}
+	return json.Unmarshal(data, c)
+}
+
+func (c *Content) Value() (driver.Value, error) {
+	return json.Marshal(c)
 }
