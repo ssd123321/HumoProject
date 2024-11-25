@@ -64,6 +64,7 @@ func main() {
 	handler.Router.HandleFunc("/UpdatePerson", handler.UpdatePerson).Methods("PUT")
 	handler.Router.HandleFunc("/GetPersonInFile/{id}", handler.GetPersonInFile).Methods("GET")
 	handler.Router.HandleFunc("/AddPersonInFile", handler.AddPeopleFromFile).Methods("POST")
+	handler.Router.HandleFunc("/AddCard", handler.AddCard).Methods("POST")
 	fmt.Printf("Server start on port %d\n", 8080)
 	err = http.ListenAndServe("localhost:8080", handler.Router)
 	if err != nil {
