@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+func CountPercent(sum float64, percent float64) float64 {
+	sum = sum - ((sum * percent) / 10)
+	return sum
+}
+
 func GenerateCardNumber() int {
 	source := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(source)

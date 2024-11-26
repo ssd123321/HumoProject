@@ -30,6 +30,32 @@ Create Table Card
     created_at timestamp default now(),
     FOREIGN KEY (person_id) references person(id)
 );
+Create Table Transaction_log
+(
+    id serial primary key ,
+    sender_id int not null ,
+    receiver_id int not null,
+    time timestamp,
+    status varchar(20),
+    FOREIGN KEY(sender_id) references card(id),
+    FOREIGN KEY (receiver_id) references card(id)
+);
+
+Create or replace function auto_time_transaction()
+    returns trigger as $$
+BEGIN
+    new.time = now();
+    return new;
+end;
+    $$ language plpgsql;
+
+Create TRIGGER auto_time_transaction_log
+    BEFORE insert on transaction_log
+    for each row
+    EXECUTE function auto_time_transaction();
+
+
+
 ALter table Card Add CONSTRAINT
 drop table card;
 CREATE OR REPLACE FUNCTION log_person_update()
