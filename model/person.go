@@ -3,10 +3,24 @@ package model
 import (
 	"database/sql/driver"
 	"encoding/json"
-	"log"
+	"errors"
+	"fmt"
+	"strings"
 	"time"
 )
 
+var NotFound = fmt.Errorf("record not found")
+
+type StringArray []string
+
+type ReturnError struct {
+	Status  string
+	Message string
+}
+type JwtPair struct {
+	AccessJWT  string `json:"access_jwt,omitempty"`
+	RefreshJWT string `json:"refresh_jwt,omitempty"`
+}
 type Content struct {
 	Name      string `json:"name,omitempty"`
 	Age       int    `json:"age,omitempty"`
@@ -15,35 +29,19 @@ type Content struct {
 		Height float64 `json:"height,omitempty"`
 	} `json:"dimension,embedded" gorm:"embedded"`
 }
-
-/*
-	func (c *Content) Value() (driver.Value, error) {
-		return json.Marshal(c)
-	}
-
-	func (c *Content) Scan(value interface{}) error {
-		b, ok := value.([]byte)
-		if !ok {
-			return errors.New("type assertion to byte")
-		}
-		return json.Unmarshal(b, &c)
-	}
-*/
 type Person struct {
 	ID        int        `gorm:"primaryKey:id"`
+	Password  string     `json:"password,omitempty" gorm:"column:current_password"`
+	Login     string     `json:"login,omitempty" gorm:"column:login"`
 	Content   Content    `json:"content,omitempty" gorm:"type:jsonb"`
 	CreatedAt *time.Time `json:"created_at,omitempty" gorm:"column:created_at"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty" gorm:"column:deleted_at"`
 	Cache     bool       `json:"cache" gorm:"column:cache"`
 }
-type DBPerson struct {
-	ID        int        `gorm:"primaryKey:id"`
-	Content   string     `json:"content,omitempty"`
-	CreatedAt *time.Time `json:"created_at,omitempty" gorm:"column:created_at"`
-	UpdatedAt *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at"`
-	DeletedAt *time.Time `json:"deleted_at,omitempty" gorm:"column:deleted_at"`
-	Cache     bool       `json:"cache" gorm:"column:cache"`
+type SigningRequest struct {
+	Login    string `json:"login,omitempty" gorm:"column:login"`
+	Password string `json:"password,omitempty" gorm:"column:current_password"`
 }
 type PeopleNoContent struct {
 	ID        int        `gorm:"primaryKey:id"`
@@ -65,16 +63,30 @@ type Card struct {
 	UpdatedAt    *time.Time `json:"updated_at,omitempty" gorm:"column:updated_at"`
 	DeletedAt    *time.Time `json:"deleted_at,omitempty" gorm:"column:deleted_at"`
 }
+type PersonNew struct {
+	ID              int         `gorm:"primaryKey:id"`
+	Passwords       StringArray `gorm:"column:passwords;type:text[]"`
+	CurrentPassword string      `json:"password,omitempty" gorm:"column:current_password"`
+	Login           string      `json:"login,omitempty" gorm:"column:login"`
+	Content         Content     `json:"content,omitempty" gorm:"type:jsonb"`
+	CreatedAt       *time.Time  `json:"created_at,omitempty" gorm:"column:created_at"`
+	UpdatedAt       *time.Time  `json:"updated_at,omitempty" gorm:"column:updated_at"`
+	DeletedAt       *time.Time  `json:"deleted_at,omitempty" gorm:"column:deleted_at"`
+	Cache           bool        `json:"cache" gorm:"column:cache"`
+}
+type NewPassword struct {
+	Id              int    `json:"id" gorm:"column:id"`
+	NewPass         string `json:"new_password"`
+	CurrentPassword string `json:"current_password" gorm:"current_password"`
+}
 
 var CorporativeCard Card = Card{
-	PersonID:   276,
-	CardNumber: 735095922271317,
+	ID: 2,
 }
 
 var Sender Card = Card{}
 
 func (c *Content) Scan(src interface{}) error {
-	log.Println(1)
 	var data []byte
 	switch v := src.(type) {
 	case []uint8:
@@ -87,4 +99,22 @@ func (c *Content) Scan(src interface{}) error {
 
 func (c *Content) Value() (driver.Value, error) {
 	return json.Marshal(c)
+}
+func (s *StringArray) Scan(value interface{}) error {
+	if value == nil {
+		*s = StringArray{}
+		return nil
+	}
+	switch v := value.(type) {
+	case string:
+		str := strings.Trim(v, "{}")
+		*s = strings.Split(str, ",")
+	case []byte:
+		str := strings.Trim(string(v), "{}")
+		*s = strings.Split(str, ",")
+	default:
+		return errors.New("failed to scan StringArray: invalid type")
+	}
+
+	return nil
 }

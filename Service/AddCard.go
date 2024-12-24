@@ -7,12 +7,12 @@ import (
 )
 
 func (s *Service) AddCard(ctx context.Context, bankName string) (*model.Card, error) {
-	_, err := s.GetPersonByID(ctx)
+	_, err := s.repository.GetPersonByID(ctx)
 	if err != nil {
 		return nil, err
 	}
 	var card *model.Card = &model.Card{
-		PersonID:     ctx.Value("person_id").(int),
+		PersonID:     ctx.Value("id").(int),
 		CardNumber:   utils.GenerateCardNumber(),
 		DateOfExpire: utils.GenerateExpirationDate(),
 		Logotype:     utils.ChooseRandomCard(),
@@ -20,4 +20,18 @@ func (s *Service) AddCard(ctx context.Context, bankName string) (*model.Card, er
 		BankName:     bankName,
 	}
 	return s.repository.AddCard(card)
+}
+func (s *Service) DeleteCard(number int) (int, error) {
+	_, err := s.repository.GetCardByNumber(number)
+	if err != nil {
+		return 0, err
+	}
+	return s.repository.DeleteCard(number)
+}
+func (s *Service) GetCardByNumber(number int) (*model.Card, error) {
+	c, err := s.repository.GetCardByNumber(number)
+	if err != nil {
+		return nil, err
+	}
+	return c, nil
 }

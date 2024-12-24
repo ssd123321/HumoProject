@@ -44,11 +44,11 @@ func Authentication(next http.Handler) http.Handler {
 		}
 		id, err := utils.ValidateAccessJWT(accessJWT)
 		if err != nil {
-			if err.Error() != "token expired" {
+			if err.Error() != "token has invalid claims: token is expired" {
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write(utils.ConvertToJson("unsuccessfully", "invalid accessJWT, get again"))
 				return
-			} else if err.Error() == "token expired" {
+			} else if err.Error() == "token has invalid claims: token is expired" {
 				_, err = utils.ValidateRefreshJWT(refreshJWT)
 				if err != nil {
 					w.WriteHeader(http.StatusBadRequest)

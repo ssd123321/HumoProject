@@ -1,14 +1,15 @@
 package utils
 
 import (
+	"Tasks/model"
+	"encoding/json"
 	"math/rand"
 	"strconv"
 	"time"
 )
 
 func CountPercent(sum float64, percent float64) float64 {
-	sum = sum - ((sum * percent) / 10)
-	return sum
+	return (sum * percent) / 100
 }
 
 func GenerateCardNumber() int {
@@ -33,4 +34,9 @@ func ChooseRandomCard() string {
 		return "VISA"
 	}
 	return "MASTERCARD"
+}
+func ConvertToJson(status string, message string) []byte {
+	err := model.ReturnError{Status: status, Message: message}
+	data, _ := json.Marshal(err)
+	return data
 }

@@ -1,13 +1,15 @@
-create table person
-(
-    id         serial
-        primary key,
-    content    jsonb,
-    created_at timestamp default now(),
-    updated_at timestamp default now(),
-    deleted_at timestamp default now(),
-    cache      boolean
+CREATE TABLE person (
+                        id serial PRIMARY KEY,
+                        passwords text[3],
+                        current_password text,
+                        login varchar(30),
+                        content jsonb,
+                        created_at timestamp DEFAULT now(),
+                        updated_at timestamp DEFAULT now(),
+                        deleted_at timestamp DEFAULT now(),
+                        cache boolean
 );
+
 Create Table people_tracing
 (
     id int not null,
@@ -37,9 +39,52 @@ Create Table Transaction_log
     receiver_id int not null,
     time timestamp,
     status varchar(20),
+    sum numeric,
+    percent float4,
+    percentedSum float4,
     FOREIGN KEY(sender_id) references card(id),
     FOREIGN KEY (receiver_id) references card(id)
 );
+Create Table refresh_token
+(
+    id serial primary key,
+    person_id int not null,
+    token text,
+    FOREIGN KEY(person_id) references person(id)
+);
+
+create or replace function AddPasswordInsert()
+    returns trigger as $$
+BEGIN
+    New.passwords[1] = null;
+    New.passwords[2] = null;
+    New.passwords[3]  = NEW.current_password;
+    return NeW;
+end;
+$$ LANGUAGE plpgsql;
+
+Create trigger insert_current_password
+    before insert on person
+    for each row
+    execute function AddPasswordInsert();
+
+
+CREATE TRIGGER update_passwords_trigger
+    BEFORE UPDATE OF current_password ON person
+    FOR EACH ROW
+    WHEN (OLD.current_password IS DISTINCT FROM NEW.current_password)
+EXECUTE FUNCTION update_passwords();
+
+
+
+
+
+
+
+
+
+
+
 
 Create or replace function auto_time_transaction()
     returns trigger as $$
@@ -54,10 +99,6 @@ Create TRIGGER auto_time_transaction_log
     for each row
     EXECUTE function auto_time_transaction();
 
-
-
-ALter table Card Add CONSTRAINT
-drop table card;
 CREATE OR REPLACE FUNCTION log_person_update()
     RETURNS TRIGGER AS $$
 BEGIN
@@ -108,16 +149,5 @@ Create trigger person_updated_at_trigger
     for each row
     Execute function update_person_updated_at();
 
-Create FUNCTION simple(x integer, y integer) RETURNS integer AS $$;
-    Select x * y;
-$$ language SQL;
-
-Select simple(2, 3);
-
-Create function GetValues(inout a int, inout b int) AS 'Select a + b, a * b' language sql;
-SELECT GetValues(5, 5);
-
-
-Ins
 
 

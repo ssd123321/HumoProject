@@ -1,0 +1,24 @@
+syntax="proto3";
+import "google/protobuf/timestamp.proto";
+option go_package = "/gprc_api";
+message IncomePersonID{
+  int64 id = 1;
+}
+message Dimenstion{
+  float weight = 1;
+  float height = 2;
+}
+message Content{
+  string name = 1;
+  int64 age = 2;
+  Dimenstion dimension = 3;
+}
+message ReplyPerson{
+  int64 id = 1;
+  Content content = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+service grpc_banking{
+  rpc GetPersonByID(IncomePersonID)returns(ReplyPerson);
+}
