@@ -3,12 +3,16 @@ package main
 import (
 	"Tasks/Redis"
 	"Tasks/Service"
-	"Tasks/handlers"
-	"Tasks/handlers/middleware"
+	"Tasks/TelegramBotAPI"
+	"Tasks/handlers/grpc"
+	"Tasks/handlers/grpc/gprc_api"
+	http2 "Tasks/handlers/http"
+	"Tasks/handlers/http/middleware"
 	"Tasks/repository"
 	"context"
 	"fmt"
 	"github.com/gorilla/mux"
+	grpc2 "google.golang.org/grpc"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -20,31 +24,6 @@ import (
 )
 
 func main() {
-	/*
-		var (
-			resultCh    = make(chan string)
-			ctx, cancel = context.WithCancel(context.Background())
-			services    = []string{"Google", "Yandex", "Yahoo", "Baidu"}
-			wg          sync.WaitGroup
-			winner      string
-		)
-		defer cancel()
-		for i := range services {
-			svc := services[i]
-			wg.Add(1)
-			go func() {
-				requestRide(ctx, svc, resultCh)
-				wg.Done()
-			}()
-			go func() {
-				winner = <-resultCh
-				cancel()
-			}()
-		}
-		wg.Wait()
-		log.Printf("found car in %q", winner)
-	*/
-
 	db, err := OpenDB()
 	if err != nil {
 		log.Fatal(err)
@@ -52,43 +31,49 @@ func main() {
 	rep := repository.Repository{DB: db}
 	cache := Redis.NewCache(Redis.ServerRed.Addr, Redis.ServerRed.Password, Redis.ServerRed.DB)
 	service := Service.CreateService(&rep, &cache)
+	serverRegistr := grpc2.NewServer()
+	myGrpc := grpc.NewGrpcBaningServer(&gprc_api.UnimplementedGrpcBankingServer{}, service)
+	net, err := grpc.NewGrpcServer(":8089")
+	if err != nil {
+		log.Fatal(err)
+	}
+	gprc_api.RegisterGrpcBankingServer(serverRegistr, myGrpc)
+	go func() {
+		fmt.Println("Starting grpc server on port :8089")
+		err = serverRegistr.Serve(net)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 	router := mux.NewRouter()
 	mux.CORSMethodMiddleware(router)
-	handler := handlers.NewHandler(service, router)
+	handler := http2.NewHandler(service, router)
 	handler.Router.Use(middleware.Recovery)
-	handler.Router.Use(middleware.SetLimit)
-	handler.Router.HandleFunc("/AddPerson", handler.AddPerson).Methods("POST")
-	handler.Router.HandleFunc("/GetPeople", handler.GetPeople).Methods("GET")
-	handler.Router.HandleFunc("/DeletePerson/{id}", handler.DeletePerson).Methods("DELETE")
-	handler.Router.HandleFunc("/GetPerson/{id}", handler.GetPatientByID).Methods("GET")
-	handler.Router.HandleFunc("/UpdatePerson", handler.UpdatePerson).Methods("PUT")
-	handler.Router.HandleFunc("/GetPersonInFile/{id}", handler.GetPersonInFile).Methods("GET")
-	handler.Router.HandleFunc("/AddPersonInFile", handler.AddPeopleFromFile).Methods("POST")
-	handler.Router.HandleFunc("/AddCard", handler.AddCard).Methods("POST")
+	handler.Router.HandleFunc("/login", handler.Login).Methods("POST")
+	handler.Router.HandleFunc("/AddPerson", handler.SignUp).Methods("POST")
+	handler.Router.Handle("/GetPeople", middleware.Authentication(http.HandlerFunc(handler.GetPeople))).Methods("GET")
+	handler.Router.Handle("/DeletePerson/{id}", middleware.Authentication(http.HandlerFunc(handler.DeletePerson))).Methods("DELETE")
+	handler.Router.Handle("/GetPerson/{id}", middleware.Authentication(http.HandlerFunc(handler.GetPatientByID))).Methods("GET")
+	handler.Router.Handle("/UpdatePerson", middleware.Authentication(http.HandlerFunc(handler.UpdatePerson))).Methods("PUT")
+	handler.Router.Handle("/GetPersonInFile/{id}", middleware.Authentication(http.HandlerFunc(handler.GetPersonInFile))).Methods("GET")
+	handler.Router.Handle("/AddPersonInFile", middleware.Authentication(http.HandlerFunc(handler.AddPeopleFromFile))).Methods("POST")
+	handler.Router.Handle("/AddCard", middleware.Authentication(http.HandlerFunc(handler.AddCard))).Methods("POST")
+	handler.Router.Handle("/Transfer", middleware.Authentication(http.HandlerFunc(handler.TransferMoney))).Methods("POST")
+	handler.Router.Handle("/change", middleware.Authentication(http.HandlerFunc(handler.ChangePassword))).Methods("POST")
+	b, err := TelegramBotAPI.InitializeBot("8193972383:AAF470KuDnyRSi6EZUpaNgnSFjhumE480YY", service, make(map[int64]int), make(map[int64]int), make(map[int64]string))
+	if err != nil {
+		log.Fatal(err)
+	}
+	updates, err := b.GetUpdates()
+	if err != nil {
+		log.Fatal(err)
+	}
+	go b.HandlerPollingData(updates)
 	fmt.Printf("Server start on port %d\n", 8080)
 	err = http.ListenAndServe("localhost:8080", handler.Router)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	/*
-		ctx, cancel := context.WithCancel(context.Background())
-
-		go func(ctx context.Context) {
-			for {
-				select {
-				case <-ctx.Done():
-					fmt.Println("ceded") // exit properly on cancellation
-				default:
-					// do work
-				}
-			}
-		}(ctx)
-
-		time.Sleep(1 * time.Second)
-
-		cancel()
-	*/
 }
 func cancel() {
 	_, cancel := context.WithCancel(context.Background())

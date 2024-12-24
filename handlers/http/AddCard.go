@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"Tasks/utils"
 	"context"
 	"fmt"
 	"net/http"
@@ -14,7 +15,7 @@ func (h *Handler) AddCard(w http.ResponseWriter, r *http.Request) {
 	personID, err := strconv.Atoi(strID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		w.Write(utils.ConvertToJson("error", err.Error()))
 		return
 	}
 	fmt.Println(personID)
@@ -22,9 +23,9 @@ func (h *Handler) AddCard(w http.ResponseWriter, r *http.Request) {
 	_, err = h.Service.AddCard(r.Context(), bankName)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		w.Write(utils.ConvertToJson("error", err.Error()))
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("Card created successfully"))
+	w.Write(utils.ConvertToJson("successfully", "Card created successfully"))
 }
